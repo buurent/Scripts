@@ -7,8 +7,8 @@ set1=()
 set2=()
 
 listing = glob.glob('*.csv')
-#csvfile = open( listing[0] , "rb")
-#headers = csvfile.next()
+#csvfile_init = open( listing[0] , "rb")
+#headers  = csvfile_init.next()
 #set2 = set(headers.split(';'))
 #print set2
 n=0
@@ -18,133 +18,97 @@ for filename in listing:
     m=1
     csvfile = open(filename , "r")
     headers = csvfile.next()
-    set1 = set(headers.split(';'))
+    set1 = set(headers.rsplit(';'))
     if n == 1:
         set2 = set1
         print '/*CREATE EXTERNAL TABLE FOR EXCEL '+ filename+'*/'
         print ' ' 
         print 'CREATE EXTERNAL TABLE DIODOR_EXT'+str(n)+'('
-        for kolom in set1:
-            if m >= int(len(set1)):
-                kolom = kolom.replace("Double","float")
-                kolom = kolom.replace("String","varchar")
-                kolom = kolom.replace("]",") ")
-                kolom = kolom.replace("["," ")
-            else:
-                kolom = kolom.replace("Double","float")
-                kolom = kolom.replace("String","varchar")
-                kolom = kolom.replace("]",",")
-                kolom = kolom.replace("["," ")
-            print kolom
-            m=m+1
-        m=1
-        print   "LOCATION ('gpfdist://10.2.9.18:8081/data/source/Stammdaten/*.csv') format 'text' (delimiter ';') log errors into ext_test_err segment reject limit 2 rows;"
+        kolom = headers.replace("[Double];"," varchar, ")
+        kolom = kolom.replace("DateValue[Date];"," Datevalue Date, ")
+        kolom = kolom.replace("[String];"," varchar, ")
+#       kolom = kolom.replace("[Date];"," varchar, ")
+        kolom = kolom.replace("DateValue[Date]","Datevalue Date ")
+        kolom = kolom.replace("[String]"," varchar)")
+#       kolom = kolom.replace("[Date]"," varchar) ")
+        kolom = kolom.replace("[Double]"," varchar) ")
+        print kolom
+        print   "LOCATION ('gpfdist://10.2.9.18:8081/data/source/Stammdaten/*.csv') format 'csv' (header delimiter ';') log errors into ext_test_err segment reject limit 2 rows;"
         print ' '
         print '/* Insert statement for diodor_extn '+filename+'*/'
         print ''
-        print 'INSERT INTO TABLE DIODDOR('
-        for kolom in set1:
-            if m >= int(len(set1)):
-                kolom = kolom.replace("Double","")
-                kolom = kolom.replace("String","")
-                kolom = kolom.replace("\sDate","")
-                kolom = kolom.replace("]",") ")
-                kolom = kolom.replace("["," ")
-            else:
-                kolom = kolom.replace("Double","")
-                kolom = kolom.replace("String","")
-                kolom = kolom.replace("\sDate","")
-                kolom = kolom.replace("]",",")
-                kolom = kolom.replace("["," ")
-            print kolom
-            m=m+1
-        m=1
+        print 'INSERT INTO DIODOR('
+        kolom = headers.replace("[Double];",", ")
+        kolom = kolom.replace("[String];"," , ")
+        kolom = kolom.replace("[Date];"," , ")
+        kolom = kolom.replace("[String]"," ) ")
+        kolom = kolom.replace("[Date]"," ) ")
+        kolom = kolom.replace("[Double]"," ) ")
+        print kolom
+#       print ''
         print 'SELECT '
-        for kolom in set1:
-            if m >= int(len(set1)):
-                kolom = kolom.replace("Double","")
-                kolom = kolom.replace("String","")
-                kolom = kolom.replace("\sDate","")
-                kolom = kolom.replace("]"," )")
-                kolom = kolom.replace("["," ")
-            else:
-                kolom = kolom.replace("Double","")
-                kolom = kolom.replace("String","")
-                kolom = kolom.replace("\sDate","")
-                kolom = kolom.replace("]",",")
-                kolom = kolom.replace("["," ")
-            print kolom
-            m=m+1
+        kolom = headers.replace("[Double];","::float, ")
+        kolom = kolom.replace("[String];"," , ")
+#       kolom = kolom.replace("[Date];"," , ")
+        kolom = kolom.replace("DateValue[Date];" , "to_date(datevalue,'YYYY-MM-DD:HH24:MI:SS'),")
+        kolom = kolom.replace("[String]"," ) ")
+#       kolom = kolom.replace("[Date]"," ) ")
+        kolom = kolom.replace("[Double]","::float ")
+        kolom = kolom.replace("DateValue[Date]" , "to_date(datevalue,'YYYY-MM-DD:HH24:MI:SS')")
+        print kolom
         print 'FROM DIODOR_EXT'+str(n)+';'
     elif set1 <= set2:
-        print ""
+        print "bestaat al"
     else:
         set2=set1|set2
-        print '/*CREATE EXTERNAL TABLE FOR EXCEL '+filename+'*/'
+        print '/*CREATE EXTERNAL TABLE FOR EXCEL '+ filename+'*/'
         print ' ' 
-        print 'CREATE EXTERBAL TABLE DIODOR_EXT'+str(n)+'('
-        for kolom in set1:
-            if m >= int(len(set1)):
-                kolom = kolom.replace("Double","float")
-                kolom = kolom.replace("]",") ")
-                kolom = kolom.replace("["," ")
-            else:
-                kolom = kolom.replace("Double","float")
-                kolom = kolom.replace("]",",")
-                kolom = kolom.replace("["," ")
-            print kolom
-            m=m+1
-        m=1
-        print   "LOCATION ('gpfdist://10.2.9.18:8081/data/source/Stammdaten/*.csv') format 'text' (delimiter ';') log errors into ext_test_err segment reject limit 2 rows;"
+        print 'CREATE EXTERNAL TABLE DIODOR_EXT'+str(n)+'('
+        kolom = headers.replace("[Double];"," varchar, ")
+        kolom = kolom.replace("DateValue[Date];"," Datevalue Date, ")
+        kolom = kolom.replace("[String];"," varchar, ")
+#       kolom = kolom.replace("[Date];"," varchar, ")
+        kolom = kolom.replace("DateValue[Date]","Datevalue Date ")
+        kolom = kolom.replace("[String]"," varchar)")
+#       kolom = kolom.replace("[Date]"," varchar) ")
+        kolom = kolom.replace("[Double]"," varchar) ")
+        print kolom
+        print   "LOCATION ('gpfdist://10.2.9.18:8081/data/source/Stammdaten/*.csv') format 'csv' (header delimiter ';') log errors into ext_test_err segment reject limit 2 rows;"
         print ' '
-        print '/* Insert statement for diodor_extn'+filename+'*/'
+        print '/* Insert statement for diodor_extn '+filename+'*/'
         print ''
-        print 'INSERT INTO TABLE DIODDOR('
-        for kolom in set1:
-            if m >= int(len(set1)):
-                kolom = kolom.replace("Double","float")
-                kolom = kolom.replace("]"," )")
-                kolom = kolom.replace("["," ")
-            else:
-                kolom = kolom.replace("Double","float")
-                kolom = kolom.replace("]",",")
-                kolom = kolom.replace("["," ")
-            print kolom
-            m=m+1
-        m=1
+        print 'INSERT INTO DIODOR('
+        kolom = headers.replace("[Double];",", ")
+        kolom = kolom.replace("[String];"," , ")
+        kolom = kolom.replace("[Date];"," , ")
+        kolom = kolom.replace("[String]"," ) ")
+        kolom = kolom.replace("[Date]"," ) ")
+        kolom = kolom.replace("[Double]"," ) ")
+        print kolom
+#       print ''
         print 'SELECT '
-        for kolom in set1:
-            if m >= int(len(set1)):
-                kolom = kolom.replace("Double","float")
-                kolom = kolom.replace("]"," )")
-                kolom = kolom.replace("["," ")
-            else:
-                kolom = kolom.replace("Double","float")
-                kolom = kolom.replace("]",",")
-                kolom = kolom.replace("["," ")
-            print kolom
-            m=m+1
-        print 'FROM DIODOR_EXT'+str(n)+';' 
-
+        kolom = headers.replace("[Double];","::float, ")
+        kolom = kolom.replace("[String];"," , ")
+#       kolom = kolom.replace("[Date];"," , ")
+        kolom = kolom.replace("DateValue[Date];" , "to_date(datevalue,'YYYY-MM-DD:HH24:MI:SS'),")
+        kolom = kolom.replace("[String]"," ) ")
+#       kolom = kolom.replace("[Date]"," ) ")
+        kolom = kolom.replace("[Double]","::float ")
+        kolom = kolom.replace("DateValue[Date]" , "to_date(datevalue,'YYYY-MM-DD:HH24:MI:SS')")
+        print kolom
+        print 'FROM DIODOR_EXT'+str(n)+';'
 
 print ''
 print'/*CREATE OVERALL TABLE DIODOR*/'
 print '' 
 print 'CREATE TABLE DIODOR('
-m=1 
-for kolom in set2:
-    if m >= int(len(set2)):
-        kolom = kolom.replace("Double","float")
-        kolom = kolom.replace("String","varchar")
-        kolom = kolom.replace("]"," )")
-        kolom = kolom.replace("["," ")
-    else:
-        kolom = kolom.replace("Double","float")
-        kolom = kolom.replace("String","varchar")
-        kolom = kolom.replace("]",",")
-        kolom = kolom.replace("["," ")
-    print kolom
-    m=m+1
+kolom = headers.replace("[Double];"," float, ")
+kolom = kolom.replace("[String];"," varchar, ")
+kolom = kolom.replace("[Date];"," date, ")
+kolom = kolom.replace("[String]"," varchar) ")
+kolom = kolom.replace("[Date]"," date) ")
+kolom = kolom.replace("[Double]"," float) ")
+print kolom
 print 'WITH (appendonly=true, orientation=column,compresstype=QUICKLZ)'
 print 'distributed randomly'
 print 'PARTITION BY RANGE (DateValue)'
