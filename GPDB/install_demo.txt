@@ -1,0 +1,60 @@
+rm -Rf /datad/gpdb/data/master/*
+rm -Rf /datai/gpdb/data/master/*
+rm -Rf /datag/gpdb/data/master/*
+rm -Rf /datak/gpdb/data/master/*
+rm -Rf /dataf/gpdb/data/master/*
+rm -Rf /datae/gpdb/data/master/*
+
+gpssh -f hostfile_gpssh_segonly -e 'mkdir /datad/gpdb/data/primary'
+gpssh -f hostfile_gpssh_segonly -e 'mkdir /datai/gpdb/data/primary'
+gpssh -f hostfile_gpssh_segonly -e 'mkdir /datag/gpdb/data/primary'
+gpssh -f hostfile_gpssh_segonly -e 'mkdir /datak/gpdb/data/primary'
+gpssh -f hostfile_gpssh_segonly -e 'mkdir /dataf/gpdb/data/primary'
+gpssh -f hostfile_gpssh_segonly -e 'mkdir /datae/gpdb/data/primary'
+gpssh -f hostfile_gpssh_segonly -e 'mkdir /datah/gpdb/data/primary'
+
+gpssh -f hostfile_gpssh_segonly -e 'mkdir /datad/gpdb/data/mirror'
+gpssh -f hostfile_gpssh_segonly -e 'mkdir /datai/gpdb/data/mirror'
+gpssh -f hostfile_gpssh_segonly -e 'mkdir /datag/gpdb/data/mirror'
+gpssh -f hostfile_gpssh_segonly -e 'mkdir /datak/gpdb/data/mirror'
+gpssh -f hostfile_gpssh_segonly -e 'mkdir /dataf/gpdb/data/mirror'
+gpssh -f hostfile_gpssh_segonly -e 'mkdir /datae/gpdb/data/mirror'
+gpssh -f hostfile_gpssh_segonly -e 'mkdir /datah/gpdb/data/mirror'
+
+gpssh -f hostfile_gpssh_segonly -e 'rm -Rf /datad/gpdb/data/primary/*'
+gpssh -f hostfile_gpssh_segonly -e 'rm -Rf /datai/gpdb/data/primary/*'
+gpssh -f hostfile_gpssh_segonly -e 'rm -Rf /datag/gpdb/data/primary/*'
+gpssh -f hostfile_gpssh_segonly -e 'rm -Rf /datak/gpdb/data/primary/*'
+gpssh -f hostfile_gpssh_segonly -e 'rm -Rf /dataf/gpdb/data/primary/*'
+gpssh -f hostfile_gpssh_segonly -e 'rm -Rf /datae/gpdb/data/primary/*'
+gpssh -f hostfile_gpssh_segonly -e 'rm -Rf /datah/gpdb/data/primary/*'
+
+gpssh -f hostfile_gpssh_segonly -e 'rm -Rf /datad/gpdb/data/mirror/*'
+gpssh -f hostfile_gpssh_segonly -e 'rm -Rf /datai/gpdb/data/mirror/*'
+gpssh -f hostfile_gpssh_segonly -e 'rm -Rf /datag/gpdb/data/mirror/*'
+gpssh -f hostfile_gpssh_segonly -e 'rm -Rf /datak/gpdb/data/mirror/*'
+gpssh -f hostfile_gpssh_segonly -e 'rm -Rf /dataf/gpdb/data/mirror/*'
+gpssh -f hostfile_gpssh_segonly -e 'rm -Rf /datae/gpdb/data/mirror/*'
+gpssh -f hostfile_gpssh_segonly -e 'rm -Rf /datah/gpdb/data/mirror/*'
+
+/datad/gpdh/data/mirror
+/datai/gpdb/data/mirror
+/datag/gpdb/data/mirror
+/datak/gpdb/data/mirror
+/dataf/gpdb/data/mirror
+/datae/gpdb/data/mirror'
+
+
+gpinitsystem -c /home/gpadmin/gpconfigs/gpinitsystem_config  -h hostfile_gpssh_segonly
+gpaddmirrors -m mirrordirs -p 100
+
+gppkg --install plr-ossv8.3.0.15_pv2.1_gpdb4.3orca-rhel5-x86_64.gppkg
+gppkg --install postgis-ossv2.0.3_pv2.0.1_gpdb4.3orca-rhel5-x86_64.gppkg
+gppkg --install madlib-ossv1.9_pv1.9.5_gpdb4.3orca-rhel5-x86_64.gppkg
+
+$GPHOME/madlib/bin/madpack install -s madlib -p greenplum -c gpadmin@host-04-14:5532/test
+
+gpcmdr --start gpcc
+
+http://host-04-14.haas-36.pez.pivotal.io:28090/main/dashboard
+http://host-04-14.haas-36.pez.pivotal.io:28080/
